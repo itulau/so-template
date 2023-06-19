@@ -1,6 +1,6 @@
 ## ¿Como ejecutar?
 
-Toda la info esta en 
+Para ver todos los targets disponibles, ejecutar:
 
 ```
 make help

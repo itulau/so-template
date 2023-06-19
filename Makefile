@@ -10,6 +10,7 @@ endif
 
 # Definimos algunos colores para hacer mas bonitos los echos
 GREEN=\033[0;32m
+CYAN=\033[0;36m
 RED=\033[0;31m
 NC=\033[0m
 
@@ -25,7 +26,7 @@ SHARED_DIR=shared
 # Si ejecutas make sin ningun target que se muestre un listado de targets
 default: help
 
-#- Compilacion -#
+#- Modulos -#
 
 #: Compilar todos los modulos
 all: cpu kernel
@@ -38,31 +39,48 @@ kernel:
 cpu:
 	@make build modulo=$@
 
-#- Extras -#
+#- Utiles -#
 
-#: [modulo=<nombre modulo>] [parametros=<parametros...>] - Ejecuta un modulo previamente compilado con parametros
+#: [modulo=<nombre modulo>] [parametros='<parametros...>'] - Ejecuta un modulo previamente compilado con parametros
 run:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "make run modulo=<modulo> [parametros=<parametros...>]"; \
 		echo "         ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
-		echo "Ejemplo: ${GREEN}make run modulo=cpu${NC}\n\n"; \
+		echo "Ejemplo: ${CYAN}make run modulo=cpu${NC}\n\n"; \
 		exit 1; \
 	fi
 
 	@if [ ! -e $(BUILD_DIR)/$(modulo) ]; then \
 		echo "make run modulo=${RED}$(modulo)${NC} $(parametros)"; \
-		echo "                ${RED}^ El modulo $(modulo) no esta compilado.${NC}\n\n"; \
-		echo "Para compilarlo ejecute:\n\t${GREEN}make $(modulo)${NC}\n\n"; \
-		exit 1; \
+		echo "                ${RED}^ El modulo $(modulo) no esta compilado.${NC}\n"; \
+		read -p "$$(echo "¿Desea compilar y volver a ejecutar el modulo $(modulo)? (y/n): ")" yn; \
+		case $$yn in \
+			[Yy]* ) make $(modulo); exit 0;; \
+			* ) echo "\n\nDebe compilar $(modulo) para poder ejecutarlo:\n\t${CYAN}make $(modulo)${NC}\n\n"; exit 1;; \
+		esac; \
 	fi
 
-	@echo "Ejecutando ${GREEN}$(modulo)${NC}..."
-	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
+	@echo "${CYAN}==================================${NC}"
+	@if [ "$(parametros)" = "" ]; then \
+		echo "Ejecutando ${CYAN}$(modulo)${NC} sin parametros..."; \
+	else \
+		echo "Ejecutando ${CYAN}$(modulo)${NC} con parametros ${CYAN}$(parametros)${NC}"; \
+	fi
+	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@./$(BUILD_DIR)/$(modulo) $(parametros)
+	@./$(BUILD_DIR)/$(modulo) $(parametros); \
+	if [ "$$?" = "0" ] ; then \
+		echo ""; \
+		echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
+		echo "${CYAN}$(modulo)${NC} finalizo su ejecucion exitosamente!"; \
+	else \
+		echo ""; \
+		echo "${RED}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
+		echo "${RED}$(modulo)${NC} finalizo su ejecucion con error!"; \
+	fi
 	@echo ""
-	@echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
-	@echo "${GREEN}$(modulo)${NC} finalizo su ejecucion"
+	@echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
+	@echo "${CYAN}$(modulo)${NC} finalizo su ejecucion"
 
 #: Elimina todos los binarios compilados
 clean:
@@ -109,8 +127,8 @@ build:
 # Parsea este archivo de Makefile y lista los targets que tienen un "#:" como comentario
 #: Mostrar listado de targets disponibles
 help:
-	@echo "\nTargets disponibles:"
-	@echo "--------------------"
+	@echo "\nComandos disponibles:"
+	@echo "---------------------"
 	@sed '1s;^;\n;' Makefile \
 	| perl -pe 's/#[^:^-](.*)\n//g' \
 	| grep -zoP "((\n#:.*)+\n[^:]+:|\n#- (.*) -#)" \
@@ -120,4 +138,4 @@ help:
 	| perl -0777 -pe 's/#: /###/g' \
 	| perl -0777 -pe 's/#- (.*) -#/###\n$$1:###\n###/g' \
 	| column -t -s '###'
-	@echo "\n--------------------\n"
+	@echo "\n---------------------\n"
