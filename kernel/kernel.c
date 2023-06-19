@@ -1,10 +1,19 @@
 #include <stdio.h>
-#include "../shared/estructuras.h"
+#include <commons/log.h>
+
+t_log *logger;
 
 int main(int argc, char *argv[])
 {
-    int pcb = crear_pcb();
-    printf("Modulo kernel!\n");
-    printf("pcb: %i\n", pcb);
+    logger = log_create("./bin/kernel.log", "kernel", true, LOG_LEVEL_INFO);
+
+    log_warning(logger, "Falta implementar el modulo kernel");
+    log_trace(logger, "Se ejecuto el modulo kernel con %i parametros", argc - 1);
+
+    for(int i = 1; i < argc; i++)
+    {
+        log_trace(logger, "%i° parametro: %s", i, argv[i]);
+    }
+
     return 0;
 }

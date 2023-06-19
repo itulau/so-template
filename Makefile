@@ -15,9 +15,13 @@ RED=\033[0;31m
 NC=\033[0m
 
 # Carpeta donde se guardaran los modulos compilados
-BUILD_DIR=bin
+BUILD_DIR = bin
 # Carpeta donde se encuentra el modulo shared (archivos compartidos)
-SHARED_DIR=shared
+SHARED_DIR = shared
+# Link al repo de las commons
+COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
+# Bibliotecas que se linkearan al compilar los modulos
+LIBS = -lcommons
 
 # ----------------------------------------
 # -----------------TARGETS----------------
@@ -26,7 +30,7 @@ SHARED_DIR=shared
 # Si ejecutas make sin ningun target que se muestre un listado de targets
 default: help
 
-#- Modulos -#
+#- Compilacion -#
 
 #: Compilar todos los modulos
 all: cpu kernel
@@ -39,7 +43,7 @@ kernel:
 cpu:
 	@make build modulo=$@
 
-#- Utiles -#
+#- Ejecucion -#
 
 #: [modulo=<nombre modulo>] [parametros='<parametros...>'] - Ejecuta un modulo previamente compilado con parametros
 run:
@@ -69,20 +73,27 @@ run:
 	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
 	@./$(BUILD_DIR)/$(modulo) $(parametros); \
-	if [ "$$?" = "0" ] ; then \
+	RESULT=$$?; \
+	if [ "$$RESULT" = "0" ] ; then \
 		echo ""; \
 		echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
 		echo "${CYAN}$(modulo)${NC} finalizo su ejecucion exitosamente!"; \
 	else \
 		echo ""; \
 		echo "${RED}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
-		echo "${RED}$(modulo)${NC} finalizo su ejecucion con error!"; \
+		echo "${RED}$(modulo)${NC} finalizo su ejecucion con error $$RESULT!"; \
 	fi
-	@echo ""
-	@echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
-	@echo "${CYAN}$(modulo)${NC} finalizo su ejecucion"
 
-#: Elimina todos los binarios compilados
+#- Utiles -#
+
+#: Descarga e instala las biblioteca commons de la catedra
+commons:
+	@COMMONS_TEMP_DIR=$$(mktemp -d); \
+	git clone $(COMMONS_REPO) $$COMMONS_TEMP_DIR; \
+	( cd $$COMMONS_TEMP_DIR && make install ); \
+	rm -rf $$COMMONS_TEMP_DIR;
+
+#: Elimina los binarios compilados y los logs
 clean:
 	@rm -rf $(BUILD_DIR)
 
@@ -112,8 +123,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c)"
-	@gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c); \
+	@echo "gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) $(LIBS)"
+	@gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) $(LIBS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
