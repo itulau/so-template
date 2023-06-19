@@ -36,16 +36,17 @@ default: help
 all: cpu kernel
 
 #: Compilar modulo kernel
-kernel:
+kernel: commons
 	@make build modulo=$@
 
 #: Compilar modulo cpu
-cpu:
+cpu: commons
 	@make build modulo=$@
 
 #- Ejecucion -#
 
-#: [modulo=<nombre modulo>] [parametros='<parametros...>'] - Ejecuta un modulo previamente compilado con parametros
+#: Ejecuta un modulo con parametros
+#: modulo=<nombre modulo> [parametros='<parametros...>']
 run:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "make run modulo=<modulo> [parametros=<parametros...>]"; \
@@ -60,7 +61,7 @@ run:
 		read -p "$$(echo "¿Desea compilar y volver a ejecutar el modulo $(modulo)? (y/n): ")" yn; \
 		case $$yn in \
 			[Yy]* ) make $(modulo); exit 0;; \
-			* ) echo "\n\nDebe compilar $(modulo) para poder ejecutarlo:\n\t${CYAN}make $(modulo)${NC}\n\n"; exit 1;; \
+			* ) echo "\n${RED}Debe compilar el modulo $(modulo) para poder ejecutarlo:\n\t${NC}make $(modulo)\n\n"; exit 1;; \
 		esac; \
 	fi
 
@@ -87,11 +88,16 @@ run:
 #- Utiles -#
 
 #: Descarga e instala las biblioteca commons de la catedra
-commons:
+install-commons:
 	@COMMONS_TEMP_DIR=$$(mktemp -d); \
 	git clone $(COMMONS_REPO) $$COMMONS_TEMP_DIR; \
 	( cd $$COMMONS_TEMP_DIR && make install ); \
 	rm -rf $$COMMONS_TEMP_DIR;
+
+#: Desinstala biblioteca commons de la catedra
+uninstall-commons:
+	sudo rm -f /usr/lib/libcommons.so
+	sudo rm -rf /usr/include/commons
 
 #: Elimina los binarios compilados y los logs
 clean:
