@@ -1,3 +1,7 @@
+# ----------------------------------------
+# ----------------VARIABLES---------------
+# ----------------------------------------
+
 # Flags para hacer que la ejecucion del makefile sea limpia
 ifndef VERBOSE
 MAKEFLAGS += --no-print-directory
@@ -10,9 +14,15 @@ RED=\033[0;31m
 NC=\033[0m
 
 # Carpeta donde se guardaran los modulos compilados
-BUILD_DIR = build
+BUILD_DIR=bin
+# Carpeta donde se encuentra el modulo shared (archivos compartidos)
+SHARED_DIR=shared
 
-# Si ejecutas make sin ningun target que se ejecute la ayuda
+# ----------------------------------------
+# -----------------TARGETS----------------
+# ----------------------------------------
+
+# Si ejecutas make sin ningun target que se muestre un listado de targets
 default: help
 
 #- Compilacion de modulos -#
@@ -40,7 +50,9 @@ run:
 	fi
 
 	@if [ ! -e $(BUILD_DIR)/$(modulo) ]; then \
-		echo "Error, modulo $(modulo) no fue compilado. Para compilarlo ejecute: make $(modulo)\n"; \
+		echo "make run modulo=${RED}$(modulo)${NC} $(parametros)"; \
+		echo "                ${RED}^ El modulo $(modulo) no esta compilado.${NC}\n\n"; \
+		echo "Para compilarlo ejecute:\n\t${GREEN}make $(modulo)${NC}\n\n"; \
 		exit 1; \
 	fi
 
@@ -52,22 +64,27 @@ run:
 	@echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
 	@echo "${GREEN}$(modulo)${NC} finalizo su ejecucion"
 
+#: Elimina todos los binarios compilados
+clean:
+	@rm -rf $(BUILD_DIR)
+
 # Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
 build:
 	@if [ "$(modulo)" = "" ]; then \
+		echo "Error:"; \
 		echo "make build modulo=<modulo>"; \
 		echo "           ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
 		echo "Ejemplo: ${GREEN}make build modulo=cpu${NC}\n\n"; \
 		exit 1; \
 	fi
 
-	@if [ "$(modulo)" = "shared" ]; then \
-		echo "El modulo shared no es necesario compilarlo, es incluido cuando se compila cualquier otro modulo\n"; \
+	@if [ "$(modulo)" = "$(SHARED_DIR)" ]; then \
+		echo "El modulo ${RED}$(SHARED_DIR)${NC} no es necesario compilarlo, es incluido cuando se compila cualquier otro modulo\n"; \
 		exit 1; \
 	fi
 
 	@if [ ! -e $(modulo) ]; then \
-		echo "Error, el modulo $(modulo) no existe.\n"; \
+		echo "El modulo ${RED}$(modulo)${NC} no existe.\n"; \
 		exit 1; \
 	fi
 
@@ -76,8 +93,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./shared/*.c)"
-	@if gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./shared/*.c); then \
+	@echo "gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c)"
+	@if gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c); then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
 		echo "Modulo ${GREEN}$(modulo)${NC} compilado exitosamente!"; \
