@@ -25,7 +25,7 @@ SHARED_DIR=shared
 # Si ejecutas make sin ningun target que se muestre un listado de targets
 default: help
 
-#- Compilacion de modulos -#
+#- Compilacion -#
 
 #: Compilar todos los modulos
 all: cpu kernel
@@ -90,11 +90,13 @@ build:
 
 	@mkdir -p $(BUILD_DIR)
 
+	@echo "${GREEN}==================================${NC}"
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
 	@echo "gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c)"
-	@if gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c); then \
+	@gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c); \
+	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
 		echo "Modulo ${GREEN}$(modulo)${NC} compilado exitosamente!"; \
