@@ -1,22 +1,10 @@
-#: Mostrar listado de comandos disponibles
-help:
-	@echo "Comandos disponibles"
-	@echo "--------------------"
-	@echo ""
-	@sed '1s;^;\n;' Makefile \
-	| perl -pe 's/#[^:^-](.*)\n//g' \
-	| grep -zoP "((\n#:.*)+\n[^:]+:|\n#- (.*) -#)" \
-	| perl -pe 's/\0/\n/g' \
-	| perl -0777 -pe 's/((#: (.*)\n)+)(.*):/make $$4$$1\n/g' \
-	| perl -0777 -pe 's/\n#: /\n	 ###/g' \
-	| perl -0777 -pe 's/#: / ###/g' \
-	| perl -0777 -pe 's/#- (.*) -#/$$1:###/g' \
-	| column -t -s '###'
+# Flags para hacer que la ejecucion del makefile sea limpia
+ifndef VERBOSE
+MAKEFLAGS += --no-print-directory
+MAKEFLAGS += --always-make
+endif
 
-# Definimos los targets que no estan relacionados a ningun archivo
-.PHONY: build run
-
-# Definimos colores para marcar cosas
+# Definimos algunos colores para hacer mas bonitos los echos
 GREEN=\033[0;32m
 RED=\033[0;31m
 NC=\033[0m
@@ -24,21 +12,62 @@ NC=\033[0m
 # Carpeta donde se guardaran los modulos compilados
 BUILD_DIR = build
 
-#: <modulo> - Compilar un modulo
-build: modulo := $(word 2, $(MAKECMDGOALS))
+# Si ejecutas make sin ningun target que se ejecute la ayuda
+default: help
+
+#- Compilacion de modulos -#
+
+#: Compilar todos los modulos
+all: cpu kernel
+
+#: Compilar modulo kernel
+kernel:
+	@make build modulo=$@
+
+#: Compilar modulo cpu
+cpu:
+	@make build modulo=$@
+
+#- Extras -#
+
+#: [modulo=<nombre modulo>] [parametros=<parametros...>] - Ejecuta un modulo previamente compilado con parametros
+run:
+	@if [ "$(modulo)" = "" ]; then \
+		echo "make run modulo=<modulo> [parametros=<parametros...>]"; \
+		echo "         ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
+		echo "Ejemplo: ${GREEN}make run modulo=cpu${NC}\n\n"; \
+		exit 1; \
+	fi
+
+	@if [ ! -e $(BUILD_DIR)/$(modulo) ]; then \
+		echo "Error, modulo $(modulo) no fue compilado. Para compilarlo ejecute: make $(modulo)\n"; \
+		exit 1; \
+	fi
+
+	@echo "Ejecutando ${GREEN}$(modulo)${NC}..."
+	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
+	@echo ""
+	@./$(BUILD_DIR)/$(modulo) $(parametros)
+	@echo ""
+	@echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
+	@echo "${GREEN}$(modulo)${NC} finalizo su ejecucion"
+
+# Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
 build:
 	@if [ "$(modulo)" = "" ]; then \
-		echo "Defina modulo: make build <modulo>\n"; \
+		echo "make build modulo=<modulo>"; \
+		echo "           ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
+		echo "Ejemplo: ${GREEN}make build modulo=cpu${NC}\n\n"; \
 		exit 1; \
 	fi
 
 	@if [ "$(modulo)" = "shared" ]; then \
-		echo "El modulo shared no es necesario compilarlo, es incluido cuando se compila cualquier otro modulo"; \
+		echo "El modulo shared no es necesario compilarlo, es incluido cuando se compila cualquier otro modulo\n"; \
 		exit 1; \
 	fi
 
 	@if [ ! -e $(modulo) ]; then \
-		echo "Error, la carpeta $(modulo) no existe.\n"; \
+		echo "Error, el modulo $(modulo) no existe.\n"; \
 		exit 1; \
 	fi
 
@@ -58,28 +87,18 @@ build:
 		echo "ERROR AL COMPILAR MODULO ${RED}$(modulo)${NC}!"; \
 	fi
 
-#: <modulo> <parametros...> - Ejecuta un modulo previamente compilado con parametros
-run: modulo := $(word 2, $(MAKECMDGOALS))
-run: parametros := $(filter-out run $(modulo), $(MAKECMDGOALS))
-run:
-	@if [ "$(modulo)" = "" ]; then \
-		echo "Defina modulo: make run <modulo> <parametros...>\n"; \
-		exit 1; \
-	fi
-
-	@if [ ! -e $(BUILD_DIR)/$(modulo) ]; then \
-		echo "Error, modulo $(modulo) no fue compilado. Para compilarlo ejecute: make build $(modulo)\n"; \
-		exit 1; \
-	fi
-
-	@echo "Ejecutando ${GREEN}$(modulo)${NC}..."
-	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
-	@echo ""
-	@./$(BUILD_DIR)/$(modulo) $(parametros)
-	@echo ""
-	@echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
-	@echo "${GREEN}$(modulo)${NC} finalizo su ejecucion"
-
-# Hack para que si el target no existe no diga nada
-%:
-	@:
+# Parsea este archivo de Makefile y lista los targets que tienen un "#:" como comentario
+#: Mostrar listado de targets disponibles
+help:
+	@echo "\nTargets disponibles:"
+	@echo "--------------------"
+	@sed '1s;^;\n;' Makefile \
+	| perl -pe 's/#[^:^-](.*)\n//g' \
+	| grep -zoP "((\n#:.*)+\n[^:]+:|\n#- (.*) -#)" \
+	| perl -pe 's/\0/\n/g' \
+	| perl -0777 -pe 's/((#: (.*)\n)+)(.*):/make $$4$$1\n/g' \
+	| perl -0777 -pe 's/\n#: /\n###/g' \
+	| perl -0777 -pe 's/#: /###/g' \
+	| perl -0777 -pe 's/#- (.*) -#/###\n$$1:###\n###/g' \
+	| column -t -s '###'
+	@echo "\n--------------------\n"
