@@ -36,11 +36,11 @@ default: help
 all: cpu kernel
 
 #: Compilar modulo kernel
-kernel: commons
+kernel: 
 	@make build modulo=$@
 
 #: Compilar modulo cpu
-cpu: commons
+cpu: 
 	@make build modulo=$@
 
 #- Ejecucion -#
@@ -134,7 +134,7 @@ build:
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
-		echo "Modulo ${GREEN}$(modulo)${NC} compilado exitosamente!"; \
+		echo "Modulo ${GREEN}$(modulo)${NC} compilado exitosamente! Correr ejecutando ${GREEN}make run modulo=$(modulo)${NC}"; \
 	else \
 		echo ""; \
 		echo "${RED}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
@@ -143,16 +143,18 @@ build:
 
 # Parsea este archivo de Makefile y lista los targets que tienen un "#:" como comentario
 #: Mostrar listado de targets disponibles
+help: SHELL:=/bin/bash
 help:
-	@echo "\nComandos disponibles:"
-	@echo "---------------------"
-	@sed '1s;^;\n;' Makefile \
+	@linea_horizontal=$$(eval printf '%.0s-' {1..$$(tput cols)}); \
+    export linea_horizontal; \
+	sed '1s;^;\n;' Makefile \
 	| perl -pe 's/#[^:^-](.*)\n//g' \
-	| grep -zoP "((\n#:.*)+\n[^:]+:|\n#- (.*) -#)" \
+	| grep -zoP "((\n#:.*)+\n[^:]+:|\n#-(.*)-#)" \
 	| perl -pe 's/\0/\n/g' \
-	| perl -0777 -pe 's/((#: (.*)\n)+)(.*):/make $$4$$1\n/g' \
-	| perl -0777 -pe 's/\n#: /\n###/g' \
-	| perl -0777 -pe 's/#: /###/g' \
-	| perl -0777 -pe 's/#- (.*) -#/###\n$$1:###\n###/g' \
-	| column -t -s '###'
-	@echo "\n---------------------\n"
+	| perl -0777 -pe 's/((#: (.*)\n)+)(.*):/ make $$4$$1\n/g' \
+	| perl -0777 -pe 's/\n#: /\n|||/g' \
+	| perl -0777 -pe 's/#: /|||/g' \
+    | column -t -s '|||' \
+	| perl -0777 -pe 's/-#(\s*)\n#-/\n/g' \
+	| perl -0777 -pe 's/#-([^-#]*)-#(\s*)\n/$$ENV{linea_horizontal}\n$$1\n$$ENV{linea_horizontal}\n/g' \
+
