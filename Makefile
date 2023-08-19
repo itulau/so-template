@@ -22,6 +22,8 @@ SHARED_DIR = shared
 COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 # Bibliotecas que se linkearan al compilar los modulos
 LIBS = -lcommons
+# Parametros para valgrind
+VALGRIND_PARAMS = --leak-check=full --track-origins=yes 
 
 # ----------------------------------------
 # -----------------TARGETS----------------
@@ -30,7 +32,7 @@ LIBS = -lcommons
 # Si ejecutas make sin ningun target que se muestre un listado de targets
 default: help
 
-#- Compilacion -#
+#- Modulos -#
 
 #: Compilar todos los modulos
 all: cpu kernel
@@ -43,11 +45,10 @@ kernel:
 cpu: 
 	@make build modulo=$@
 
-#- Ejecucion -#
+#- Ejecutar un modulo -#
 
-#: Ejecuta un modulo con parametros
-#: modulo=<nombre modulo> [parametros='<parametros...>']
-run:
+# Checkeos que se deben hacer antes de ejecutar un modulo
+prerun:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "make run modulo=<modulo> [parametros=<parametros...>]"; \
 		echo "         ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
@@ -73,17 +74,34 @@ run:
 	fi
 	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@./$(BUILD_DIR)/$(modulo) $(parametros); \
-	RESULT=$$?; \
-	if [ "$$RESULT" = "0" ] ; then \
+
+postrun: RESULT=0
+postrun:
+	@if [ "$(RESULT)" = "0" ] ; then \
 		echo ""; \
 		echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
 		echo "${CYAN}$(modulo)${NC} finalizo su ejecucion exitosamente!"; \
 	else \
 		echo ""; \
 		echo "${RED}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
-		echo "${RED}$(modulo)${NC} finalizo su ejecucion con error $$RESULT!"; \
+		echo "${RED}$(modulo)${NC} finalizo su ejecucion con error $(RESULT)!"; \
 	fi
+
+
+#: Ejecuta un modulo con parametros
+#: modulo=<nombre modulo> [parametros='<parametros...>']
+#: Ej: make run modulo=cpu parametros='param1 param2'
+#: 
+run: prerun
+	@./$(BUILD_DIR)/$(modulo) $(parametros); \
+	make postrun RESULT="$$?";
+
+#: Ejecuta un modulo con valgrind - sudo apt install valgrind
+#: modulo=<nombre modulo> [parametros='<parametros...>']
+#: Ej: make valgrind modulo=cpu parametros='param1 param2'
+valgrind: prerun
+	@valgrind $(VALGRIND_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
+	make postrun RESULT="$$?";
 
 #- Utiles -#
 
@@ -101,7 +119,7 @@ uninstall-commons:
 
 #: Elimina los binarios compilados y los logs
 clean:
-	@rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)
 
 # Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
 build:
@@ -141,8 +159,7 @@ build:
 		echo "ERROR AL COMPILAR MODULO ${RED}$(modulo)${NC}!"; \
 	fi
 
-# Parsea este archivo de Makefile y lista los targets que tienen un "#:" como comentario
-#: Mostrar listado de targets disponibles
+#: Mostrar listado de comandos disponibles
 help: SHELL:=/bin/bash
 help:
 	@linea_horizontal=$$(eval printf '%.0s-' {1..$$(tput cols)}); \
@@ -154,7 +171,14 @@ help:
 	| perl -0777 -pe 's/((#: (.*)\n)+)(.*):/ make $$4$$1\n/g' \
 	| perl -0777 -pe 's/\n#: /\n|||/g' \
 	| perl -0777 -pe 's/#: /|||/g' \
-    | column -t -s '|||' \
+    	| column --table \
+    		 --separator '|||' \
+    		 --output-width $$(tput cols) \
+    		 --table-columns C1,C2,C3,C4 \
+    		 --table-hide C2,C3 \
+             	 --table-wrap C4 \
+		 --table-noheadings \
 	| perl -0777 -pe 's/-#(\s*)\n#-/\n/g' \
 	| perl -0777 -pe 's/#-([^-#]*)-#(\s*)\n/$$ENV{linea_horizontal}\n$$1\n$$ENV{linea_horizontal}\n/g' \
+
 
