@@ -23,7 +23,7 @@ COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 # Bibliotecas que se linkearan al compilar los modulos
 LIBS = -lcommons
 # Parametros para valgrind
-VALGRIND_PARAMS = --leak-check=full --track-origins=yes 
+VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 
 # ----------------------------------------
 # -----------------TARGETS----------------
@@ -43,6 +43,10 @@ kernel:
 
 #: Compilar modulo cpu
 cpu: 
+	@make build modulo=$@
+
+#: Compilar modulo test
+test: 
 	@make build modulo=$@
 
 #- Ejecutar un modulo -#
@@ -147,8 +151,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) $(LIBS)"
-	@gcc -o $(BUILD_DIR)/$(modulo) $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) $(LIBS); \
+	@echo "gcc -g $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
+	@gcc -g $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
