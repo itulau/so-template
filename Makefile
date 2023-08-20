@@ -35,7 +35,7 @@ default: help
 #- Modulos -#
 
 #: Compilar todos los modulos
-all: cpu kernel
+all: cpu kernel testing
 
 #: Compilar modulo kernel
 kernel: 
@@ -43,6 +43,10 @@ kernel:
 
 #: Compilar modulo cpu
 cpu: 
+	@make build modulo=$@
+
+#: Compilar modulo testing
+testing: 
 	@make build modulo=$@
 
 # Checkeos que se deben hacer antes de ejecutar un modulo

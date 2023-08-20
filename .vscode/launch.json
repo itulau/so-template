@@ -30,14 +30,15 @@
             "description": "Seleccione modulo para debuggear",
             "options": [
                 "cpu",
-                "kernel"
+                "kernel",
+                "testing"
             ],
-            "default": "cpu"
+            "default": "testing"
         },
         {
             "id": "parametros",
             "type": "promptString",
-            "description": "Parametros para el programa",
+            "description": "Parametros para el modulo",
             "default": ""
         }
     ]
