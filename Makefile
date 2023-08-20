@@ -24,8 +24,6 @@ COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 LIBS = -lcommons
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
-# Puerto donde se inicia server para debuggear
-DEBUG_PARAMS = :8000
 
 # ----------------------------------------
 # -----------------TARGETS----------------
@@ -87,13 +85,6 @@ postrun:
 #: 
 run: prerun
 	@./$(BUILD_DIR)/$(modulo) $(parametros); \
-	make postrun RESULT="$$?";
-
-#: Ejecuta un modulo para debugear
-#: Ej: make debug modulo=cpu parametros='param1 param2'
-#: 
-debug: prerun
-	@gdbserver $(DEBUG_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
 #: Ejecuta un modulo con valgrind

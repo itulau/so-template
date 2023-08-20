@@ -18,7 +18,7 @@ Ejecutar el modulo cpu
 make run modulo=cpu
 ```
 
-## Parametros
+## Ejecutar con parametros
 
 Todos los comandos para ejecutar un modulo aceptan el argumento **parametros**
 
@@ -41,17 +41,42 @@ make valgrind modulo=cpu
 
 ## Debug
 
-Instalar la extension de [Native Debug](https://marketplace.visualstudio.com/items?itemName=webfreak.debug) para VSCode.
+Instalar la extension de [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) para VSCode.
 
-Instalar **gdbserver** 
+Instalar **gdb** 
 ```
-sudo apt-get install gdbserver
-```
-
-Ejecutar un modulo en modo debug 
-
-```
-make debug modulo=cpu
+sudo apt-get install gdb
 ```
 
-En **VSCode** agregar breakpoints en el codigo C del modulo ejecutado **(cpu/cpu.c)** y presionar F5.
+En **VSCode** agregar breakpoints en algun modulo y presionar F5, elegir el modulo a debuggear y agregar parametros si es necesario.
+
+## Agregar mas modulos
+
+>Reemplazar `<modulo>` con el nombre del modulo a agregar
+
+1. Crear carpeta y archivo con el nombre del modulo `<modulo>/<modulo>.c`
+2. Agregar este target en el makefile
+```make
+...
+#: Compilar modulo <modulo>
+<modulo>: 
+	@make build modulo=$@
+...
+```
+3. Agregar el modulo a las opciones en `.vscode/launch.json`, dentro de `inputs > options`.
+```json
+...
+"inputs": [
+    {
+        "id": "modulo",
+        "type": "pickString",
+        "description": "Seleccione modulo para debuggear",
+        "options": [
+            "cpu",
+            "kernel",
+            <modulo>
+        ],
+        "default": "cpu"
+    },
+    ...
+```
