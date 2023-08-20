@@ -35,14 +35,14 @@ default: help
 #- Modulos -#
 
 #: Compilar todos los modulos
-all: cpu kernel testing
+all: client server testing
 
-#: Compilar modulo kernel
-kernel: 
+#: Compilar modulo server
+server: 
 	@make build modulo=$@
 
-#: Compilar modulo cpu
-cpu: 
+#: Compilar modulo client
+client: 
 	@make build modulo=$@
 
 #: Compilar modulo testing
@@ -54,7 +54,7 @@ prerun:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "make run modulo=<modulo> [parametros=<parametros...>]"; \
 		echo "         ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
-		echo "Ejemplo: ${CYAN}make run modulo=cpu${NC}\n\n"; \
+		echo "Ejemplo: ${CYAN}make run modulo=client${NC}\n\n"; \
 		exit 1; \
 	fi
 
@@ -85,14 +85,14 @@ postrun:
 #- Ejecutar un modulo -#
 
 #: Ejecuta un modulo con parametros
-#: Ej: make run modulo=cpu parametros='param1 param2'
+#: Ej: make run modulo=client parametros='param1 param2'
 #: 
 run: prerun
 	@./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
 #: Ejecuta un modulo con valgrind
-#: Ej: make valgrind modulo=cpu parametros='param1 param2'
+#: Ej: make valgrind modulo=client parametros='param1 param2'
 valgrind: prerun
 	@valgrind $(VALGRIND_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
@@ -115,13 +115,13 @@ uninstall-commons:
 clean:
 	rm -rf $(BUILD_DIR)
 
-# Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
+# Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make client, make server, etc para compilar los modulos)
 build:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "Error:"; \
 		echo "make build modulo=<modulo>"; \
 		echo "           ${RED}^^^^^^^^^^^^^^^ Falta definir modulo${NC}\n\n"; \
-		echo "Ejemplo: ${GREEN}make build modulo=cpu${NC}\n\n"; \
+		echo "Ejemplo: ${GREEN}make build modulo=client${NC}\n\n"; \
 		exit 1; \
 	fi
 
