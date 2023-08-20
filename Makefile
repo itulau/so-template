@@ -24,6 +24,8 @@ COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 LIBS = -lcommons
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
+# Puerto donde se inicia server para debuggear
+DEBUG_PARAMS = :8000
 
 # ----------------------------------------
 # -----------------TARGETS----------------
@@ -44,8 +46,6 @@ kernel:
 #: Compilar modulo cpu
 cpu: 
 	@make build modulo=$@
-
-#- Ejecutar un modulo -#
 
 # Checkeos que se deben hacer antes de ejecutar un modulo
 prerun:
@@ -88,16 +88,23 @@ postrun:
 	fi
 
 
+#- Ejecutar un modulo -#
+
 #: Ejecuta un modulo con parametros
-#: modulo=<nombre modulo> [parametros='<parametros...>']
 #: Ej: make run modulo=cpu parametros='param1 param2'
 #: 
 run: prerun
 	@./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
-#: Ejecuta un modulo con valgrind - sudo apt install valgrind
-#: modulo=<nombre modulo> [parametros='<parametros...>']
+#: Ejecuta un modulo para debugear
+#: Ej: make debug modulo=cpu parametros='param1 param2'
+#: 
+debug: prerun
+	@gdbserver $(DEBUG_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
+	make postrun RESULT="$$?";
+
+#: Ejecuta un modulo con valgrind
 #: Ej: make valgrind modulo=cpu parametros='param1 param2'
 valgrind: prerun
 	@valgrind $(VALGRIND_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
@@ -171,13 +178,13 @@ help:
 	| perl -0777 -pe 's/((#: (.*)\n)+)(.*):/ make $$4$$1\n/g' \
 	| perl -0777 -pe 's/\n#: /\n|||/g' \
 	| perl -0777 -pe 's/#: /|||/g' \
-    	| column --table \
-    		 --separator '|||' \
-    		 --output-width $$(tput cols) \
-    		 --table-columns C1,C2,C3,C4 \
-    		 --table-hide C2,C3 \
-             	 --table-wrap C4 \
-		 --table-noheadings \
+	| column --table \
+			 --separator '|||' \
+			 --output-width $$(tput cols) \
+			 --table-columns C1,C2,C3,C4 \
+			 --table-hide C2,C3 \
+			 --table-wrap C4 \
+			 --table-noheadings \
 	| perl -0777 -pe 's/-#(\s*)\n#-/\n/g' \
 	| perl -0777 -pe 's/#-([^-#]*)-#(\s*)\n/$$ENV{linea_horizontal}\n$$1\n$$ENV{linea_horizontal}\n/g' \
 
