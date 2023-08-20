@@ -56,15 +56,7 @@ prerun:
 		exit 1; \
 	fi
 
-	@if [ ! -e $(BUILD_DIR)/$(modulo) ]; then \
-		echo "make run modulo=${RED}$(modulo)${NC} $(parametros)"; \
-		echo "                ${RED}^ El modulo $(modulo) no esta compilado.${NC}\n"; \
-		read -p "$$(echo "¿Desea compilar y volver a ejecutar el modulo $(modulo)? (y/n): ")" yn; \
-		case $$yn in \
-			[Yy]* ) make $(modulo); exit 0;; \
-			* ) echo "\n${RED}Debe compilar el modulo $(modulo) para poder ejecutarlo:\n\t${NC}make $(modulo)\n\n"; exit 1;; \
-		esac; \
-	fi
+	@make $(modulo)
 
 	@echo "${CYAN}==================================${NC}"
 	@if [ "$(parametros)" = "" ]; then \

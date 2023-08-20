@@ -1,19 +1,34 @@
 #include <stdio.h>
-#include <commons/log.h>
+#include <pthread.h>
+#include<unistd.h>
 
-t_log *logger;
+void* ejecutar_en_un_thread(void* args)
+{
+    for(int i = 0; i < 5; i++)
+    {
+        printf("Trabajando en el thread %i...\n", *(int*)args);
+        sleep(*(int*)args);
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    logger = log_create("./bin/cpu.log", "cpu", true, LOG_LEVEL_TRACE);
+    pthread_t thread1;
+    pthread_t thread2;
 
-    log_warning(logger, "Falta implementar el modulo cpu");
-    log_trace(logger, "Se ejecuto el modulo cpu con %i parametros", argc - 1);
+    int param1 = 1;
+    int param2 = 2;
 
-    for(int i = 1; i < argc; i++)
-    {
-        log_trace(logger, "%i° parametro: %s", i, argv[i]);
-    }
+    printf("Voy a iniciar los threads...\n");
+    pthread_create(&thread1, NULL, ejecutar_en_un_thread, &param1);
+    pthread_create(&thread2, NULL, ejecutar_en_un_thread, &param2);
+    printf("Se iniciaron los dos threads\n");
+
+    printf("Espero a que finalicen los dos threads\n");
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    printf("Los threads finalizaron\n");
 
     return 0;
 }
