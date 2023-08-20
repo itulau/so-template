@@ -45,10 +45,6 @@ kernel:
 cpu: 
 	@make build modulo=$@
 
-#: Compilar modulo test
-test: 
-	@make build modulo=$@
-
 #- Ejecutar un modulo -#
 
 # Checkeos que se deben hacer antes de ejecutar un modulo
