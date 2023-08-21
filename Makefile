@@ -116,6 +116,8 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 # Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
+build: SOURCES := $(shell find $(modulo) -name "*.c")
+build: SHARED := $(shell find $(SHARED_DIR) -name "*.c")
 build:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "Error:"; \
@@ -141,8 +143,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -g $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
-	@gcc -g $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
+	@echo "gcc -g $(SOURCES) $(SHARED) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
+	@gcc -g $(SOURCES) $(SHARED) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
