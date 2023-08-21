@@ -1,0 +1,22 @@
+[INFO] 01:18:44:490 Servidor/(8322:8322): Servidor listo para recibir al cliente
+[INFO] 01:18:59:323 Servidor/(8322:8322): Se conecto un cliente!
+[ERROR] 01:18:59:326 Servidor/(8322:8322): el cliente se desconecto. Terminando servidor
+[INFO] 01:27:46:362 Servidor/(10175:10175): Servidor listo para recibir al cliente
+[INFO] 01:28:06:286 Servidor/(10175:10175): Se conecto un cliente!
+[ERROR] 01:28:06:287 Servidor/(10175:10175): el cliente se desconecto. Terminando servidor
+[INFO] 01:38:12:145 Servidor/(11737:11737): Servidor listo para recibir al cliente
+[INFO] 01:39:55:670 Servidor/(12261:12261): Servidor listo para recibir al cliente
+[INFO] 01:50:29:178 Servidor/(12261:12261): Se conecto un cliente!
+[ERROR] 01:50:29:179 Servidor/(12261:12261): el cliente se desconecto. Terminando servidor
+[INFO] 01:50:36:582 Servidor/(14702:14702): Servidor listo para recibir al cliente
+[INFO] 01:51:28:715 Servidor/(14702:14702): Se conecto un cliente!
+[ERROR] 01:51:44:082 Servidor/(14702:14702): el cliente se desconecto. Terminando servidor
+[INFO] 01:52:32:637 Servidor/(15167:15167): Servidor listo para recibir al cliente
+[INFO] 01:52:56:018 Servidor/(15167:15167): Se conecto un cliente!
+[INFO] 02:21:32:900 Servidor/(17982:17982): Servidor listo para recibir al cliente
+[INFO] 02:22:33:892 Servidor/(17982:17982): Se conecto un cliente!
+[INFO] 02:22:33:892 Servidor/(17982:17982): Me llego el mensaje valor
+[INFO] 02:22:33:892 Servidor/(17982:17982): Me llegaron los siguientes valores:
+
+[INFO] 02:22:33:892 Servidor/(17982:17982): holacomoestasmanito
+[ERROR] 02:22:33:892 Servidor/(17982:17982): el cliente se desconecto. Terminando servidor

@@ -16,12 +16,14 @@ NC=\033[0m
 
 # Carpeta donde se guardaran los modulos compilados
 BUILD_DIR = bin
+# Carpeta donde se encuentra el codigo fuente de cada modulo
+SRC_DIR = src
 # Carpeta donde se encuentra el modulo shared (archivos compartidos)
 SHARED_DIR = shared
 # Link al repo de las commons
 COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 # Bibliotecas que se linkearan al compilar los modulos
-LIBS = -lcommons
+LIBS = -lcommons -lreadline
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 
@@ -141,8 +143,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -g $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
-	@gcc -g $(wildcard ./$(modulo)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
+	@echo "gcc -g $(wildcard ./$(modulo)/$(SRC_DIR)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
+	@gcc -g $(wildcard ./$(modulo)/$(SRC_DIR)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
