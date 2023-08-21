@@ -85,3 +85,36 @@
 [INFO] 02:22:30:461 TP-O/(18049:18049): como
 [INFO] 02:22:31:631 TP-O/(18049:18049): estas
 [INFO] 02:22:33:253 TP-O/(18049:18049): manito
+[INFO] 14:03:16:701 TP-O/(20617:20617): Hola! Soy un Log
+[INFO] 14:03:16:850 TP-O/(20617:20617): ip: 127.0.0.1, puerto: 4444, valor: valor
+[INFO] 14:03:56:638 TP-O/(20617:20617): hola don pepito 
+[INFO] 14:04:01:384 TP-O/(20617:20617): hola don jose
+[ERROR] 14:04:03:046 TP-O/(20617:20617): no se pudo conectar el socket
+[INFO] 14:06:29:530 TP-O/(21223:21223): Hola! Soy un Log
+[INFO] 14:06:29:704 TP-O/(21223:21223): ip: 127.0.0.1, puerto: 4444, valor: valor
+[INFO] 14:06:41:320 TP-O/(21223:21223): hola 
+[INFO] 14:06:42:889 TP-O/(21223:21223): don 
+[INFO] 14:06:46:864 TP-O/(21223:21223): pepito 
+[INFO] 14:06:48:291 TP-O/(21223:21223): hola 
+[INFO] 14:06:49:232 TP-O/(21223:21223): don 
+[INFO] 14:06:53:295 TP-O/(21223:21223): jose 
+[ERROR] 14:06:53:881 TP-O/(21223:21223): no se pudo conectar el socket
+[INFO] 14:11:05:754 TP-O/(21896:21896): Hola! Soy un Log
+[INFO] 14:11:05:754 TP-O/(21896:21896): ip: 127.0.0.1, puerto: 4444, valor: valor
+[INFO] 14:11:54:811 TP-O/(21896:21896): hola como estas 
+[INFO] 14:14:34:099 TP-O/(22303:22303): Hola! Soy un Log
+[INFO] 14:14:34:101 TP-O/(22303:22303): ip: 127.0.0.1, puerto: 4444, valor: valor
+[INFO] 14:15:07:434 TP-O/(22303:22303): hola como estas 
+[INFO] 14:15:32:669 TP-O/(22303:22303): hola mundo a
+[ERROR] 14:16:08:884 TP-O/(22303:22303): no se pudo conectar el socket
+[INFO] 14:17:12:781 TP-O/(22952:22952): Hola! Soy un Log
+[INFO] 14:17:12:933 TP-O/(22952:22952): ip: 127.0.0.1, puerto: 4444, valor: valor
+[INFO] 14:17:21:608 TP-O/(22952:22952): hola 
+[INFO] 14:17:22:515 TP-O/(22952:22952): como 
+[INFO] 14:17:23:494 TP-O/(22952:22952): estas 
+[INFO] 14:20:32:486 TP-O/(23344:23344): Hola! Soy un Log
+[INFO] 14:20:32:641 TP-O/(23344:23344): ip: 127.0.0.1, puerto: 4444, valor: valor
+[INFO] 14:20:36:520 TP-O/(23344:23344): hola 
+[INFO] 14:20:39:105 TP-O/(23344:23344): como 
+[INFO] 14:20:41:105 TP-O/(23344:23344): estas 
+[INFO] 14:20:43:000 TP-O/(23344:23344): mundo

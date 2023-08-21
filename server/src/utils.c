@@ -18,11 +18,19 @@ int iniciar_servidor(void)
 	// Creamos el socket de escucha del servidor
 	socket_servidor = socket(server_info->ai_family, server_info->ai_socktype, server_info->ai_protocol);
 
+	if (socket_servidor == -1) {
+		// Log
+		abort();
+	}
+
 	// Asociamos el socket a un puerto
 	bind(socket_servidor, server_info->ai_addr, server_info->ai_addrlen);
 
 	// Escuchamos las conexiones entrantes
-	listen(socket_servidor, SOMAXCONN);
+	if(listen(socket_servidor, SOMAXCONN) == -1) {
+		// LOG
+		abort();
+	}
 
 	freeaddrinfo(server_info);
 	log_trace(logger, "Listo para escuchar a mi cliente");
@@ -87,6 +95,8 @@ t_list* recibir_paquete(int socket_cliente)
 		memcpy(valor, buffer+desplazamiento, tamanio);
 		desplazamiento+=tamanio;
 		list_add(valores, valor);
+		free(valor);
+		valor = NULL;
 	}
 	free(buffer);
 	return valores;

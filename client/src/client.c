@@ -5,27 +5,22 @@ int main(void)
 	/*---------------------------------------------------PARTE 2-------------------------------------------------------------*/
 
 	int conexion;
-	char* ip;
-	char* puerto;
-	char* valor;
+	char* ip = NULL;
+	char* puerto = NULL;
+	char* valor = NULL;
 
-	t_log* logger;
-	t_config* config;
+	t_config* config = NULL;
 
 	/* ---------------- LOGGING ---------------- */
 
 	logger = iniciar_logger();
 
-	// Usando el logger creado previamente
-	// Escribi: "Hola! Soy un log"
 	log_info(logger, "Hola! Soy un Log");
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
 	config = iniciar_config();
 
-	// Usando el config creado previamente, leemos los valores del config y los 
-	// dejamos en las variables 'ip', 'puerto' y 'valor'
 	ip = config_get_string_value(config, "IP");
 	puerto = config_get_string_value(config, "PUERTO");
 	valor = config_get_string_value(config, "CLAVE");
@@ -73,6 +68,7 @@ t_config* iniciar_config(void)
 	t_config* nuevo_config = config_create("client/cliente.config");
 
 	if (nuevo_config == NULL) {
+		log_error(logger, "Ocurrio un error al inicializar la config");
 		abort();
 	}
 
@@ -83,21 +79,24 @@ char* leer_consola(t_log* logger)
 {
 	char* leido_consola = malloc(1);
 	*leido_consola = '\0';
-	char* leido_linea;
+	char* leido_linea = NULL;
 
 	while ((leido_linea = readline("> ")) != NULL) {
         if (leido_linea[0] == '\0') {
             free(leido_linea);
+			leido_linea = NULL;
             break;
         }
 
 		log_info(logger, "%s", leido_linea);
 		leido_consola = realloc(leido_consola, strlen(leido_consola) + strlen(leido_linea) + 1);
 		if (leido_consola == NULL) {
+			log_error(logger, "Ocurrio un error al reservar espacio para lo leido en consola");
 			abort();
 		}
         strcat(leido_consola, leido_linea);
 		free(leido_linea);
+		leido_linea = NULL;
     }
 	return leido_consola;
 }
