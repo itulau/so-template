@@ -83,8 +83,7 @@ char* leer_consola(t_log* logger)
 
 	while ((leido_linea = readline("> ")) != NULL) {
         if (leido_linea[0] == '\0') {
-            free(leido_linea);
-			leido_linea = NULL;
+            FREE(leido_linea);
             break;
         }
 
@@ -95,8 +94,7 @@ char* leer_consola(t_log* logger)
 			abort();
 		}
         strcat(leido_consola, leido_linea);
-		free(leido_linea);
-		leido_linea = NULL;
+		FREE(leido_linea);
     }
 	return leido_consola;
 }
@@ -118,5 +116,5 @@ void terminar_programa(int conexion, t_log* logger, t_config* config, char* line
 	close(conexion);
 	log_destroy(logger);
 	config_destroy(config);
-	free(lineas);
+	FREE(lineas);
 }

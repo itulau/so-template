@@ -23,7 +23,7 @@ SHARED_DIR = shared
 # Link al repo de las commons
 COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 # Bibliotecas que se linkearan al compilar los modulos
-LIBS = -lcommons -lreadline
+LIBS = -lcommons -lreadline -lc
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 

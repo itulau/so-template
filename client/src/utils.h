@@ -12,6 +12,8 @@
 #include<string.h>
 #include<commons/log.h>
 
+#include "../../shared/safe-alloc.h"
+
 typedef enum
 {
 	MENSAJE,

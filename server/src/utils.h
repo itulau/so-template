@@ -1,6 +1,9 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+
 #ifndef UTILS_H_
 #define UTILS_H_
-#define _GNU_SOURCE
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -11,6 +14,7 @@
 #include<commons/collections/list.h>
 #include<string.h>
 #include<assert.h>
+#include "../../shared/safe-alloc.h"
 
 #define PUERTO "4444"
 

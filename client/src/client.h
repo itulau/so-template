@@ -1,13 +1,16 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
 #ifndef CLIENT_H_
 #define CLIENT_H_
-
-#include<stdio.h>
 #include<stdlib.h>
 #include<commons/log.h>
 #include<commons/string.h>
 #include<commons/config.h>
 #include<readline/readline.h>
 
+#include <stdio.h>
+#include "../../shared/safe-alloc.h"
 #include "utils.h"
 
 

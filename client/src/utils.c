@@ -88,7 +88,7 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 		abort();
 	}
 
-	free(a_enviar);
+	FREE(a_enviar);
 	eliminar_paquete(paquete);
 }
 
@@ -139,14 +139,14 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 		abort();
 	}
 
-	free(a_enviar);
+	FREE(a_enviar);
 }
 
 void eliminar_paquete(t_paquete* paquete)
 {
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
+	FREE(paquete->buffer->stream);
+	FREE(paquete->buffer);
+	FREE(paquete);
 }
 
 void liberar_conexion(int socket_cliente)
