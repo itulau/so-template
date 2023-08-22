@@ -95,8 +95,6 @@ t_list* recibir_paquete(int socket_cliente)
 		memcpy(valor, buffer+desplazamiento, tamanio);
 		desplazamiento+=tamanio;
 		list_add(valores, valor);
-		free(valor);
-		valor = NULL;
 	}
 	free(buffer);
 	return valores;

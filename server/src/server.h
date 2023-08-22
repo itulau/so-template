@@ -7,6 +7,7 @@
 #include <commons/log.h>
 #include "utils.h"
 
+void destroyer(void* elem);
 void iterator(char* value);
 
 #endif /* SERVER_H_ */

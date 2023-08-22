@@ -6,18 +6,13 @@
 
 int main(int argc, char *argv[])
 {
-    t_config* config = config_create("tp0.config");
-    if (config == NULL) {
-        abort();
-    }
+    t_list* valores = list_create();
+    char* valor = malloc(16);
+    snprintf(valor, 16, "hola como estas");
+	list_add(valores, valor);
 
-    t_log* log = log_create("testing/tp0.log", "TP-0", true, LOG_LEVEL_INFO);
-    if (log == NULL) {
-        abort();
-    }
+    printf("%s\n", valor);
 
-    char * valor = config_get_string_value(config, "CLAVE");
-    log_info(log, "%s!", valor);
-    config_destroy(config);
-    log_destroy(log);
+    list_destroy(valores);
+    printf("%s\n", valor);
 }
