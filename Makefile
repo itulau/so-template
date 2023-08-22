@@ -17,11 +17,11 @@ NC=\033[0m
 # Carpeta donde se guardaran los modulos compilados
 BUILD_DIR = bin
 # Carpeta donde se encuentra el modulo shared (archivos compartidos)
-SHARED_DIR = shared
+SHARED_DIR = shared/src
 # Link al repo de las commons
 COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
 # Bibliotecas que se linkearan al compilar los modulos
-LIBS = -lcommons
+LIBS = -lcommons -lshared
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 
@@ -35,7 +35,7 @@ default: help
 #- Modulos -#
 
 #: Compilar todos los modulos
-all: cpu kernel testing
+all: shared cpu kernel testing
 
 #: Compilar modulo kernel
 kernel: 
@@ -115,9 +115,25 @@ uninstall-commons:
 clean:
 	rm -rf $(BUILD_DIR)
 
+# Target para buildear la biblioteca de shared
+shared: SOURCES := $(shell find $(SHARED_DIR) -name "*.c")
+shared:
+	@mkdir -p $(BUILD_DIR)
+	@echo "${CYAN}==================================${NC}"
+	@echo "Compilando la bilbioteca ${CYAN}shared${NC}..."
+	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
+	@echo ""
+	sudo rm -rf /usr/lib/libshared.so /usr/include/shared
+	sudo mkdir -p /usr/include/shared
+	gcc -shared -o $(BUILD_DIR)/libshared.so -fPIC $(SOURCES)
+	sudo cp -u bin/libshared.so /usr/lib
+	cd $(SHARED_DIR) && sudo cp --parents -u $(shell cd $(SHARED_DIR) && find . -name "*.h") /usr/include/shared
+	@echo ""
+	@echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
+	@echo "Compilacion de ${CYAN}shared${NC} finalizada"
+
 # Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
 build: SOURCES := $(shell find $(modulo) -name "*.c")
-build: SHARED := $(shell find $(SHARED_DIR) -name "*.c")
 build:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "Error:"; \
@@ -143,8 +159,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -g $(SOURCES) $(SHARED) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
-	@gcc -g $(SOURCES) $(SHARED) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
+	@echo "gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
+	@gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \

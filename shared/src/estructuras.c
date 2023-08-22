@@ -1,4 +1,4 @@
-int crear_pcb()
+int random()
 {
-    return 123123;
+    return 1;
 }

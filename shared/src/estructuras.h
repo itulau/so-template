@@ -1,1 +1,1 @@
-int crear_pcb();
+int random();
