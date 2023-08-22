@@ -14,14 +14,19 @@ CYAN=\033[0;36m
 RED=\033[0;31m
 NC=\033[0m
 
+# PWD
+PWD = $(shell pwd)
 # Carpeta donde se guardaran los modulos compilados
 BUILD_DIR = bin
 # Carpeta donde se encuentra el modulo shared (archivos compartidos)
-SHARED_DIR = shared/src
+SHARED_DIR = shared
 # Link al repo de las commons
 COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
-# Bibliotecas que se linkearan al compilar los modulos
-LIBS = -lcommons -lshared
+# Parametros para la compilacion
+# -I path donde se encuentran los include de shared
+# -L path donde se encuentra la bilbioteca shared compilada
+# -rpath deja marcado en el ejecutable la ubicacion de la biblioteca shared
+BUILD_PARAMS = -I$(PWD) -L$(PWD)/bin -Wl,-rpath=$(PWD)/bin -lcommons -lshared
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 
@@ -49,6 +54,19 @@ cpu:
 testing: 
 	@make build modulo=$@
 
+#: Compilar la biblioteca shared
+shared: SOURCES := $(shell find $(SHARED_DIR) -name "*.c")
+shared:
+	@mkdir -p $(BUILD_DIR)
+	@echo "${CYAN}==================================${NC}"
+	@echo "Compilando la bilbioteca ${CYAN}shared${NC}..."
+	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
+	@echo ""
+	gcc -g -shared -o $(BUILD_DIR)/libshared.so -fPIC $(SOURCES)
+	@echo ""
+	@echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
+	@echo "Compilacion de ${CYAN}shared${NC} finalizada"
+
 # Checkeos que se deben hacer antes de ejecutar un modulo
 prerun:
 	@if [ "$(modulo)" = "" ]; then \
@@ -57,8 +75,6 @@ prerun:
 		echo "Ejemplo: ${CYAN}make run modulo=cpu${NC}\n\n"; \
 		exit 1; \
 	fi
-
-	@make $(modulo)
 
 	@echo "${CYAN}==================================${NC}"
 	@if [ "$(parametros)" = "" ]; then \
@@ -87,13 +103,13 @@ postrun:
 #: Ejecuta un modulo con parametros
 #: Ej: make run modulo=cpu parametros='param1 param2'
 #: 
-run: prerun
+run: shared $(modulo) prerun
 	@./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
 #: Ejecuta un modulo con valgrind
 #: Ej: make valgrind modulo=cpu parametros='param1 param2'
-valgrind: prerun
+valgrind: shared $(modulo) prerun
 	@valgrind $(VALGRIND_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
@@ -114,23 +130,6 @@ uninstall-commons:
 #: Elimina los binarios compilados y los logs
 clean:
 	rm -rf $(BUILD_DIR)
-
-# Target para buildear la biblioteca de shared
-shared: SOURCES := $(shell find $(SHARED_DIR) -name "*.c")
-shared:
-	@mkdir -p $(BUILD_DIR)
-	@echo "${CYAN}==================================${NC}"
-	@echo "Compilando la bilbioteca ${CYAN}shared${NC}..."
-	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
-	@echo ""
-	sudo rm -rf /usr/lib/libshared.so /usr/include/shared
-	sudo mkdir -p /usr/include/shared
-	gcc -shared -o $(BUILD_DIR)/libshared.so -fPIC $(SOURCES)
-	sudo cp -u bin/libshared.so /usr/lib
-	cd $(SHARED_DIR) && sudo cp --parents -u $(shell cd $(SHARED_DIR) && find . -name "*.h") /usr/include/shared
-	@echo ""
-	@echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
-	@echo "Compilacion de ${CYAN}shared${NC} finalizada"
 
 # Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make cpu, make kernel, etc para compilar los modulos)
 build: SOURCES := $(shell find $(modulo) -name "*.c")
@@ -159,8 +158,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
-	@gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
+	@echo "gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(BUILD_PARAMS)"
+	@gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(BUILD_PARAMS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \

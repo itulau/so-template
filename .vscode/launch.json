@@ -20,7 +20,8 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "additionalSOLibSearchPath": "${workspaceFolder}/bin"
         }
     ],
     "inputs": [

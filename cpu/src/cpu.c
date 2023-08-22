@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <shared/estructuras.h>
 
 void* ejecutar_en_un_thread(void* args)
 {
     for(int i = 0; i < 5; i++)
     {
         printf("Trabajando en el thread %i...\n", *(int*)args);
-        sleep(random());
+        sleep(*(int*)args);
     }
 }
 
