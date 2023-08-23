@@ -35,24 +35,20 @@ VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 # ----------------------------------------
 
 # Si ejecutas make sin ningun target que se muestre un listado de targets
-default: help
+.DEFAULT_GOAL := help
+
+# Para que makefile no entre en un loop infinito cuando se intenta buildear un modulo
+$(MAKEFILE_LIST): ;
 
 #- Modulos -#
 
+# Buildear cualquier modulo
+%:
+	@make build modulo=$@
+
 #: Compilar todos los modulos
-all: shared cpu kernel testing
-
-#: Compilar modulo kernel
-kernel: 
-	@make build modulo=$@
-
-#: Compilar modulo cpu
-cpu: 
-	@make build modulo=$@
-
-#: Compilar modulo testing
-testing: 
-	@make build modulo=$@
+all: shared $(shell find . -maxdepth 1 -type d ! -name '.*' ! -name '$(BUILD_DIR)' -printf '%f\n')
+	
 
 #: Compilar la biblioteca shared
 shared: SOURCES := $(shell find $(SHARED_DIR) -name "*.c")

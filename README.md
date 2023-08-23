@@ -55,15 +55,8 @@ En **VSCode** agregar breakpoints en algun modulo y presionar F5, elegir el modu
 >Reemplazar `<modulo>` con el nombre del modulo a agregar
 
 1. Crear carpeta y archivo con el nombre del modulo `<modulo>/<modulo>.c`
-2. Agregar este target en el makefile
-```make
-...
-#: Compilar modulo <modulo>
-<modulo>: 
-	@make build modulo=$@
-...
-```
-3. Agregar el modulo a las opciones en `.vscode/launch.json`, dentro de `inputs > options`.
+2. Agregar el modulo a las opciones en `.vscode/launch.json`, dentro de 
+`inputs > options`.
 ```json
 ...
 "inputs": [
