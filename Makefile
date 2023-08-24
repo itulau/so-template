@@ -14,16 +14,19 @@ CYAN=\033[0;36m
 RED=\033[0;31m
 NC=\033[0m
 
+# PWD
+PWD = $(shell pwd)
 # Carpeta donde se guardaran los modulos compilados
 BUILD_DIR = bin
-# Carpeta donde se encuentra el codigo fuente de cada modulo
-SRC_DIR = src
 # Carpeta donde se encuentra el modulo shared (archivos compartidos)
 SHARED_DIR = shared
 # Link al repo de las commons
 COMMONS_REPO = https://github.com/sisoputnfrba/so-commons-library.git
-# Bibliotecas que se linkearan al compilar los modulos
-LIBS = -lcommons -lreadline -lc
+# Parametros para la compilacion
+# -I path donde se encuentran los include de shared
+# -L path donde se encuentra la bilbioteca shared compilada
+# -rpath deja marcado en el ejecutable la ubicacion de la biblioteca shared
+BUILD_PARAMS = -I$(PWD) -L$(PWD)/bin -Wl,-rpath=$(PWD)/bin -lcommons -lshared -lreadline
 # Parametros para valgrind
 VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 
@@ -32,24 +35,33 @@ VALGRIND_PARAMS = -s --leak-check=full --track-origins=yes
 # ----------------------------------------
 
 # Si ejecutas make sin ningun target que se muestre un listado de targets
-default: help
+.DEFAULT_GOAL := help
+
+# Para que makefile no entre en un loop infinito cuando se intenta buildear un modulo
+$(MAKEFILE_LIST): ;
 
 #- Modulos -#
 
+# Buildear cualquier modulo
+%:
+	@make build modulo=$@
+
 #: Compilar todos los modulos
-all: client server testing
+all: shared $(shell find . -maxdepth 1 -type d ! -name '.*' ! -name '$(BUILD_DIR)' -printf '%f\n')
+	
 
-#: Compilar modulo server
-server: 
-	@make build modulo=$@
-
-#: Compilar modulo client
-client: 
-	@make build modulo=$@
-
-#: Compilar modulo testing
-testing: 
-	@make build modulo=$@
+#: Compilar la biblioteca shared
+shared: SOURCES := $(shell find $(SHARED_DIR) -name "*.c")
+shared:
+	@mkdir -p $(BUILD_DIR)
+	@echo "${CYAN}==================================${NC}"
+	@echo "Compilando la bilbioteca ${CYAN}shared${NC}..."
+	@echo "${CYAN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
+	@echo ""
+	gcc -g -shared -o $(BUILD_DIR)/libshared.so -fPIC $(SOURCES)
+	@echo ""
+	@echo "${CYAN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
+	@echo "Compilacion de ${CYAN}shared${NC} finalizada"
 
 # Checkeos que se deben hacer antes de ejecutar un modulo
 prerun:
@@ -59,8 +71,6 @@ prerun:
 		echo "Ejemplo: ${CYAN}make run modulo=client${NC}\n\n"; \
 		exit 1; \
 	fi
-
-	@make $(modulo)
 
 	@echo "${CYAN}==================================${NC}"
 	@if [ "$(parametros)" = "" ]; then \
@@ -89,13 +99,13 @@ postrun:
 #: Ejecuta un modulo con parametros
 #: Ej: make run modulo=client parametros='param1 param2'
 #: 
-run: prerun
+run: shared $(modulo) prerun
 	@./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
 #: Ejecuta un modulo con valgrind
 #: Ej: make valgrind modulo=client parametros='param1 param2'
-valgrind: prerun
+valgrind: shared $(modulo) prerun
 	@valgrind $(VALGRIND_PARAMS) ./$(BUILD_DIR)/$(modulo) $(parametros); \
 	make postrun RESULT="$$?";
 
@@ -118,6 +128,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 # Target que ayuda a compilar un modulo, no deberia ejecutarse por si solo (utilizar make client, make server, etc para compilar los modulos)
+build: SOURCES := $(shell find $(modulo) -name "*.c")
 build:
 	@if [ "$(modulo)" = "" ]; then \
 		echo "Error:"; \
@@ -143,8 +154,8 @@ build:
 	@echo "Compilando ${GREEN}$(modulo)${NC}..."
 	@echo "${GREEN}⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄⌄${NC}"
 	@echo ""
-	@echo "gcc -g $(wildcard ./$(modulo)/$(SRC_DIR)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS)"
-	@gcc -g $(wildcard ./$(modulo)/$(SRC_DIR)/*.c) $(wildcard ./$(SHARED_DIR)/*.c) -o $(BUILD_DIR)/$(modulo) $(LIBS); \
+	@echo "gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(BUILD_PARAMS)"
+	@gcc -g $(SOURCES) -o $(BUILD_DIR)/$(modulo) $(BUILD_PARAMS); \
 	if [ "$$?" = "0" ] ; then \
 		echo ""; \
 		echo "${GREEN}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"; \
